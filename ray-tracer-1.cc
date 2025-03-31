@@ -1,14 +1,11 @@
+#include "vec3.h"
 #include "color.h"
 #include "ray.h"
-#include "vec3.h"
 
 #include <iostream>
 
-color ray_color(const ray& r) {
-    vec3 unit_direction = unit_vector(r.direction());
-    auto a = 0.5*(unit_direction.y() + 1.0);
-    return (1.0-a)*color(1.0, 1.0, 1.0) + a*color(0.5, 0.7, 1.0);
-}
+// RAY-TRACER //
+// Leo Martin (2025) //
 
 
 bool get_ray_mesh_intersection(ray render_ray, point3 vertices[3]) {
@@ -19,7 +16,7 @@ bool get_ray_mesh_intersection(ray render_ray, point3 vertices[3]) {
     double determinant = dot(edge_1, p_vector);
 
     const float kepsilon = 1e-8f;
-    if (std::fabs(determinant) < kepsilon) { //abs(determinant) < 1e-8:
+    if (std::fabs(determinant) < kepsilon) {
         return false; // ray is parallel or invalid
     }
 
@@ -27,7 +24,7 @@ bool get_ray_mesh_intersection(ray render_ray, point3 vertices[3]) {
     vec3 ray_to_vertice_0 = render_ray.origin() - vertices[0];
 
     double u = dot(ray_to_vertice_0, p_vector) * inverse_determinant;
-    if (u < 0 || u > 1) {// # ...
+    if (u < 0 || u > 1) {
         return false;
     }
 
@@ -43,68 +40,56 @@ bool get_ray_mesh_intersection(ray render_ray, point3 vertices[3]) {
         return true; //intersection_point
     }
 
-    return false; //# ray intersects triangle behind camera
+    return false; // ray intersects triangle behind camera
 }
-
 
 
 
 int main() {
     // image
-	int image_width = 256;
-	int image_height = 256;
+	const int image_width = 256;
+	const int image_height = 256;
+	
+	const float start_x = -2;
+	const float start_y = 1.5;
 
-    point3 vertices[3] = {point3(-2.0, 0.0, -3.0),point3(0.0, 2.0, -3.0),point3(2.0, 0.0, -3.0)};
+    const float pixel_size = -2 * start_x / image_width;
 
+	const float center_pixel = pixel_size / 2;
+	const int height = image_height / pixel_size;
+    const int width = image_width / pixel_size;
+
+    point3 vertices[3] = {point3(-2.0, 0.0, -3.0),point3(0.0, 2.0, -3.0),point3(2.0, 0.0, -3.0)}; // mesh triangle
+
+	float x_pos, y_pos;
 	// render	
-	std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
-		/*
+	std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n"; // PPM header
+color pixel_color;
 	for (int j = 0; j < image_height; j++) {
 		std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
+		y_pos = start_y - (pixel_size * j) - center_pixel;
 		for (int i = 0; i < image_height; i++) {
-		    //auto pixel_color = color(double(i)/(image_width-1), double(j)/(image_height-1), 0);
+		    x_pos = start_x + (pixel_size * i) + center_pixel;
+			
+			vec3 cell_center(x_pos,y_pos,0);
+			vec3 ray_direction(0, 0, -1);
 
-		    //auto pixel_center = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
-            //auto ray_direction = pixel_center - camera_center;
-			vec3 camera_center(0.0,0.0,3);
-		    vec3 ray_direction(0.0,0.0,4);
-            ray r(camera_center, ray_direction);
+		    ray_direction = unit_vector(ray_direction);
+            ray render_ray(cell_center, ray_direction);
 
-		    bool hit = get_ray_mesh_intersection(r, vertices);
+		    bool hit = get_ray_mesh_intersection(render_ray, vertices);
 
-            //color pixel_color = ray_color(r);
-			color pixel_color;
+		    
 			if (hit) {
-				    color pixel_color = color(1, 0, 0);
+				    pixel_color = color(1, 0, 0);
 			} else {
-					color pixel_color = color(0, 0, 0);
-			}
-			std::cout << j << i << "\n";
+					pixel_color = color(0, 0, 0);
+			}	
 
             write_color(std::cout, pixel_color);
 		}
     }
-	*/
-		
-		vec3 camera_center(0.0,0,0);
-		    //vec3 ray_direction(0.0,1,0.2);
-			vec3 ray_direction(0.0, 0, -1.0); // now the z component is negative
-
-            ray r(camera_center, ray_direction);
-
 	
-bool hit = get_ray_mesh_intersection(r, vertices);
-
-            //color pixel_color = ray_color(r);
-			color pixel_color;
-			if (hit) {
-					std::cout << "is hit\n";
-			} else {
-					std::cout << "is not hit\n";
-			}
-			//std::cout << j << i << "\n";
-
-
 	std::clog << "\rDone.                            \n";
 }
 				
