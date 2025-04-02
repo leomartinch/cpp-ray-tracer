@@ -16,6 +16,11 @@ using namespace std;
 
 // import mesh //
 // will be ported to the hittable class //
+/*
+objects need:
+- object id, internal id number
+- ...
+*/
 
 struct Face {
     int face_vertices[3];
@@ -85,7 +90,9 @@ void read_obj_file(const string& filename) {
 //########################################################################//
 // ray tracer part //
 
-bool get_ray_mesh_intersection(ray render_ray, point3 vertices[3]) {
+
+// return the t value, this way we can get the intersection point easier
+double get_ray_mesh_intersection(const ray& render_ray, point3 vertices[3]) {
     vec3 edge_1 = vertices[1] - vertices[0];
     vec3 edge_2 = vertices[2] - vertices[0];
 
@@ -94,7 +101,7 @@ bool get_ray_mesh_intersection(ray render_ray, point3 vertices[3]) {
 
     const float kepsilon = 1e-6f;
     if (fabs(determinant) < kepsilon) {
-        return false; // ray is parallel or invalid
+        return -1.0; // ray is parallel or invalid
     }
 
     float inverse_determinant = 1 / determinant;
@@ -102,23 +109,25 @@ bool get_ray_mesh_intersection(ray render_ray, point3 vertices[3]) {
 
     double u = dot(ray_to_vertice_0, p_vector) * inverse_determinant;
     if (u < 0 || u > 1) { // ...explanation
-        return false;
+        return -1.0;
     }
 
     vec3 q = cross(ray_to_vertice_0, edge_1);
     double v = dot(render_ray.direction(), q) * inverse_determinant;
     if (v < 0 || (u + v) > 1) { // ...explanation
-        return false;
+        return -1.0;
 	}
 
     double t = dot(edge_2, q) * inverse_determinant;
     if (t > 0){
-        //intersection_point = add(ray_origin, multiply_scalar(ray_direction, t))
-        return true;
+		return t;
     }
 
-    return false; // ray intersects triangle behind camera
+    return -1.0; // ray intersects triangle behind camera
 }
+
+
+//vec3 get_normal_vector(const ray& render_ray, const 
 
 
 
@@ -164,9 +173,10 @@ int main() {
 				current_vertices[1] = mesh_vertices[current_face.face_vertices[1]];
 				current_vertices[2] = mesh_vertices[current_face.face_vertices[2]];
 
-				bool hit = get_ray_mesh_intersection(render_ray, current_vertices);
+				double hit_time = get_ray_mesh_intersection(render_ray, current_vertices);
 		    
-			    if (hit) {
+			    if (hit_time > 0.0) {
+				    point3 intersection_point = render_ray.at(hit_time);
 				    pixel_color = color(1, 0, 0);
 					break;
 			    }
