@@ -92,7 +92,7 @@ bool get_ray_mesh_intersection(ray render_ray, point3 vertices[3]) {
     vec3 p_vector = cross(render_ray.direction(), edge_2);
     double determinant = dot(edge_1, p_vector);
 
-    const float kepsilon = 1e-8f;
+    const float kepsilon = 1e-6f;
     if (fabs(determinant) < kepsilon) {
         return false; // ray is parallel or invalid
     }
@@ -137,7 +137,7 @@ int main() {
     const int width = image_width / pixel_size;
 
 	// initiate object 
-    string path_to_file = "objects/torus.obj"; 
+    string path_to_file = "objects/monke.obj"; 
     read_obj_file(path_to_file);
 	
 	// render	
@@ -145,13 +145,13 @@ int main() {
     color pixel_color;
     float x_pos, y_pos;
 
-	for (int j = 0; j < image_height; j++) {
+	for (int j = 0; j < image_height; j++) { // row
 		clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush; // progress meter
 		y_pos = start_y - (pixel_size * j) - center_pixel;
-		for (int i = 0; i < image_height; i++) {
+		for (int i = 0; i < image_width; i++) { // column
 		    x_pos = start_x + (pixel_size * i) + center_pixel;
 			
-			vec3 cell_center(x_pos,y_pos,0);
+			vec3 cell_center(x_pos,y_pos,6); // cell start has to not clip through the object
 			vec3 ray_direction(0, 0, -1);
 
 		    ray_direction = normalize(ray_direction);
