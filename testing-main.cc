@@ -135,7 +135,7 @@ vec3 get_normal_vector(const point3& intersection_point, point3 vertices[3]) {
     vec3 edge_1 = normalize(vertices[1] - vertices[0]); // normalize for no funny business
     vec3 edge_2 = normalize(vertices[2] - vertices[0]);
 
-	vec3 normal_vec = cross(edge_2, edge_1);
+	vec3 normal_vec = cross(edge_1, edge_2);
 	return normalize(normal_vec);
 
 }
@@ -147,7 +147,7 @@ int main() {
 	const int image_height = 256;
 	
 	const float start_x = -2;
-	const float start_y = 1.5;
+	const float start_y = 2;
 
     const float pixel_size = -2 * start_x / image_width;
 
@@ -200,7 +200,7 @@ int main() {
 				vec3 normal_vec = get_normal_vector(intersection_point, local_ray_hit.face);
 
 				vec3 mapped_normal = 0.5 * (normal_vec + vec3(1,1,1));
-				pixel_color = color(mapped_normal[1], mapped_normal[2], mapped_normal[0]);	
+				pixel_color = color(mapped_normal[0], mapped_normal[1], mapped_normal[2]);	
 		    }
 		    write_color(std::cout, pixel_color);
 		}
