@@ -90,8 +90,12 @@ void read_obj_file(const string& filename) {
 //########################################################################//
 // ray tracer part //
 
+struct RayHit {
+    double hit_time;
+	point3 face[3];
+};
 
-// return the t value, this way we can get the intersection point easier
+
 double get_ray_mesh_intersection(const ray& render_ray, point3 vertices[3]) {
     vec3 edge_1 = vertices[1] - vertices[0];
     vec3 edge_2 = vertices[2] - vertices[0];
@@ -127,8 +131,14 @@ double get_ray_mesh_intersection(const ray& render_ray, point3 vertices[3]) {
 }
 
 
-//vec3 get_normal_vector(const ray& render_ray, const 
+vec3 get_normal_vector(const point3& intersection_point, point3 vertices[3]) {
+    vec3 edge_1 = normalize(vertices[1] - vertices[0]); // normalize for no funny business
+    vec3 edge_2 = normalize(vertices[2] - vertices[0]);
 
+	vec3 normal_vec = cross(edge_2, edge_1);
+	return normalize(normal_vec);
+
+}
 
 
 // render image
@@ -167,6 +177,8 @@ int main() {
             ray render_ray(cell_center, ray_direction);
 
 		    pixel_color = color(0,0,0);
+			RayHit local_ray_hit;
+			double best_time = numeric_limits<double>::max();
 			for (const auto& current_face : mesh_faces) {
 				point3 current_vertices[3];
 				current_vertices[0] = mesh_vertices[current_face.face_vertices[0]];
@@ -174,14 +186,23 @@ int main() {
 				current_vertices[2] = mesh_vertices[current_face.face_vertices[2]];
 
 				double hit_time = get_ray_mesh_intersection(render_ray, current_vertices);
-		    
-			    if (hit_time > 0.0) {
-				    point3 intersection_point = render_ray.at(hit_time);
-				    pixel_color = color(1, 0, 0);
-					break;
-			    }
+
+				if (hit_time > 0.0 && hit_time < best_time) { // narrow the hits down to the smallest time
+				    best_time = hit_time;
+					local_ray_hit.hit_time = hit_time;
+					for (int i = 0; i < 3; i++) {
+					    local_ray_hit.face[i] = current_vertices[i];
+					}
+				}
 			}
-            write_color(std::cout, pixel_color);
+			if (local_ray_hit.hit_time) {	
+				point3 intersection_point = render_ray.at(local_ray_hit.hit_time);
+				vec3 normal_vec = get_normal_vector(intersection_point, local_ray_hit.face);
+
+				vec3 mapped_normal = 0.5 * (normal_vec + vec3(1,1,1));
+				pixel_color = color(mapped_normal[1], mapped_normal[2], mapped_normal[0]);	
+		    }
+		    write_color(std::cout, pixel_color);
 		}
     }
 	
