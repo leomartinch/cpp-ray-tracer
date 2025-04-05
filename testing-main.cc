@@ -111,7 +111,6 @@ void read_obj_file(const string& filename) {
 
 struct RayHit {
     double hit_time;
-	point3 face[3];
 	int face_id;
 };
 
@@ -212,7 +211,7 @@ int main() {
     float x_pos, y_pos;
 
 	for (int j = 0; j < image_height; j++) { // row
-		clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush; // progress meter
+		clog << "\rScanlines remaining: " << (image_height - j) << ' ' << flush; // progress meter
 		y_pos = start_y - (pixel_size * j) - center_pixel;
 		for (int i = 0; i < image_width; i++) { // column
 		    x_pos = start_x + (pixel_size * i) + center_pixel;
@@ -224,7 +223,8 @@ int main() {
             ray render_ray(cell_center, ray_direction);
 
 		    pixel_color = color(0,0,0);
-			RayHit local_ray_hit;
+			RayHit local_ray_hit = { 0, -1 }; // initialize with no hit
+
 			double best_time = numeric_limits<double>::max();
 			int face_index = 0;
 			for (const auto& current_face : mesh_faces) {
@@ -242,14 +242,14 @@ int main() {
 				}
 				face_index++;
 			}
-			if (local_ray_hit.hit_time) {	
+			if (local_ray_hit.hit_time > 0.0) {	// if there is an intersection with a triangle
 				//point3 intersection_point = render_ray.at(local_ray_hit.hit_time);
 				vec3 normal_vec = get_normal_vector(local_ray_hit.face_id, render_ray);
 
-				vec3 mapped_normal = 0.5 * (normal_vec + vec3(1,1,1));
+				vec3 mapped_normal = 0.5 * (normal_vec + vec3(1,1,1)); // for rgb coloring
 				pixel_color = color(mapped_normal[0], mapped_normal[1], mapped_normal[2]);	
 		    }
-		    write_color(std::cout, pixel_color);
+		    write_color(cout, pixel_color);
 		}
 
     }
