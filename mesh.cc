@@ -1,10 +1,12 @@
 #include "mesh.h"
+
 #include <fstream>
 #include <sstream>
 #include <iostream>
 #include <algorithm>
 #include <limits>
 #include <cmath>
+#include <filesystem>
 using namespace std;
 
 // OBJ MESH LOADER //
@@ -19,10 +21,16 @@ Mesh::Mesh(const std::string& filename) {
 }
 
 bool Mesh::load_obj(const string& filename) {
+	std::filesystem::path obj_path(filename);
+	std::filesystem::path directory = obj_path.parent_path();
+
     ifstream obj(filename);
     if (!obj.is_open()) {
         return false;
     }
+
+    string material_name;
+    string mtl_file;
 
     string line;
     while (getline(obj, line)) {
@@ -39,7 +47,11 @@ bool Mesh::load_obj(const string& filename) {
         else if (prefix == "s") { // smooth shading flag
             stream >> smooth_shading;
         }
+		else if (prefix == "mtllib") { // material file
+            stream >> mtl_file;	
+        }
         else if (prefix == "usemtl") { // material name
+
             stream >> material_name;
         }
 		else if (prefix == "v") { // vertex
@@ -64,6 +76,10 @@ bool Mesh::load_obj(const string& filename) {
         }
     }
     obj.close();
+
+    // create material object and make pointer that links to it	
+    std::filesystem::path mtl_file_path = directory / mtl_file;
+    material_pointer = make_shared<Material>(mtl_file_path.string(), material_name);
     return true;
 }
 
@@ -185,4 +201,11 @@ RayHit Mesh::hit(const ray& render_ray) {
     }
     return local_ray_hit;
 }
+
+color Mesh::ligma() {
+	color obama = material_pointer->get_color();
+	//color obama = color(1,0,0);
+	return obama;
+}
+
 

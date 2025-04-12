@@ -2,6 +2,8 @@
 #define MESH_H
 
 #include "ray.h"
+#include "material.h"
+
 #include <vector>
 #include <string>
 #include <limits>
@@ -34,11 +36,14 @@ public:
     virtual ~Mesh() = default; // have to find out what virtual and the ~ mean
     virtual RayHit hit(const ray& render_ray) override; // have to find out what the override means
     vec3 get_normal_vector(const int& face_index, const ray& render_ray) const;
+	color ligma(); // returns diffuse color
+
 
 private:
     std::vector<point3> vertices;     // list for vertices
     std::vector<Face> faces;		  // list for faces
     std::vector<vec3> vertex_normals; // list for vertex normals
+	std::shared_ptr<Material> material_pointer;
     
     bool load_obj(const std::string& filename);
     void calculate_vertex_normals();

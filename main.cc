@@ -1,8 +1,4 @@
 #include "leo-raytracer.h"
-#include "mesh_scene.h"
-#include "mesh.h"
-#include "ray.h"
-#include "color.h"
 
 #include <memory>
 #include <fstream>
@@ -34,11 +30,13 @@ int main() {
 	// initiate scene (populate with meshes)
 	MeshScene scene;
 
-	scene.add(make_shared<Mesh>("objects/icosphere.obj"));
-    scene.add(make_shared<Mesh>("objects/cone.obj"));
+	//scene.add(make_shared<Mesh>("objects/icosphere.obj"));
+    //scene.add(make_shared<Mesh>("objects/cone.obj"));
     //scene.add(make_shared<Mesh>("objects/cone2.obj"));
 	//scene.add(make_shared<Mesh>("objects/cone3.obj"));
 	//scene.add(make_shared<Mesh>("objects/cone4.obj"));
+    scene.add(make_shared<Mesh>("objects/ball1.obj"));
+    scene.add(make_shared<Mesh>("objects/ball2.obj"));
 	
 	// render
 	cout << "P3\n" << image_width << ' ' << image_height << "\n255\n"; // PPM header 
@@ -57,17 +55,8 @@ int main() {
 		    ray_direction = normalize(ray_direction);
             ray render_ray(cell_center, ray_direction);
 
-		    pixel_color = color(0,0,0);
-			RayHit hit = scene.hit(render_ray);
-	
-			if (hit.hit_time > 0.0) {	// if there is an intersection with a triangle
-				point3 intersection_point = render_ray.at(hit.hit_time);
-				vec3 normal_vec = dynamic_cast<Mesh*>(hit.hit_object)->get_normal_vector(hit.face_id, render_ray);
-
-				vec3 mapped_normal = 0.5 * (normal_vec + vec3(1,1,1)); // for rgb coloring
-				pixel_color = color(mapped_normal[0], mapped_normal[1], mapped_normal[2]);	
-		    }
-		    write_color(cout, pixel_color);
+			color path_color = scene.trace_path(render_ray, 1, 1);
+		    write_color(cout, path_color);
 		}
 
     }
