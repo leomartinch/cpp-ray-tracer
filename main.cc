@@ -21,6 +21,9 @@ int main() {
 	const float start_x = -2;
 	const float start_y = 2;
 
+	const int samples = 10;
+	const int max_bounces = 2;
+
     const float pixel_size = -2 * start_x / image_width;
 
 	const float center_pixel = pixel_size / 2;
@@ -30,13 +33,9 @@ int main() {
 	// initiate scene (populate with meshes)
 	MeshScene scene;
 
-	//scene.add(make_shared<Mesh>("objects/icosphere.obj"));
-    //scene.add(make_shared<Mesh>("objects/cone.obj"));
-    //scene.add(make_shared<Mesh>("objects/cone2.obj"));
-	//scene.add(make_shared<Mesh>("objects/cone3.obj"));
-	//scene.add(make_shared<Mesh>("objects/cone4.obj"));
-    scene.add(make_shared<Mesh>("objects/ball1.obj"));
-    scene.add(make_shared<Mesh>("objects/ball2.obj"));
+    scene.add(make_shared<Mesh>("objects/ball3.obj"));
+    scene.add(make_shared<Mesh>("objects/ball4.obj"));
+    scene.add(make_shared<Mesh>("objects/lightball.obj"));
 	
 	// render
 	cout << "P3\n" << image_width << ' ' << image_height << "\n255\n"; // PPM header 
@@ -55,7 +54,7 @@ int main() {
 		    ray_direction = normalize(ray_direction);
             ray render_ray(cell_center, ray_direction);
 
-			color path_color = scene.trace_path(render_ray, 1, 1);
+			color path_color = scene.trace_path(render_ray, samples, max_bounces);
 		    write_color(cout, path_color);
 		}
 

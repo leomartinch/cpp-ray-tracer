@@ -12,16 +12,10 @@
 
 class Material {
 public:
-    //Material(const color& a) : albedo(a) {}
-	//Material(const color& diffuse_color) : diffuse(diffuse_color) {
-		// constructor	
 	Material(const std::string& filename, const std::string& material_name) {	
-
-		//color Mesh::load_mtl(const string& filename) {
 		std::ifstream mtl(filename);
 		if (!mtl.is_open()) {
 		    std::cerr << "Failed to load material from: " << filename << "\n";
-		    //return false;
 			// make a default (for example link to a default white color)
 		}
 		
@@ -36,8 +30,7 @@ public:
 
 			// important!!! //
 			// make sure to only load one material based on the material name, sometimes there are multiple materials in a file //
-			// for now have presumtion that file only has one material
-
+			// for now presume that file only has one material
             if (prefix == "newmtl") { // material name
 				std::string local_material_name;
 				stream >> local_material_name;
@@ -45,8 +38,9 @@ public:
 				    this->material_name = local_material_name;
 				}
             }
-		    else if (prefix == "Ns") { // shininess
-                stream >> this->shininess;
+		    else if (prefix == "Ns") { // roughness (0=rough, 1000=smooth)
+                stream >> roughness;
+				this->roughness = roughness / 1000; // make number between (0-1)
             }
             else if (prefix == "Ka") { // ambient color
 		        float r, g, b;
@@ -63,7 +57,7 @@ public:
 				stream >> r >> g >> b;
 				this->specular = color(r,g,b);
             }
-		    else if (prefix == "Ke") { // emission color
+		    else if (prefix == "Ke") { // emission color and strength
 				float r, g, b;
 				stream >> r >> g >> b;
 				this->emission = color(r,g,b);
@@ -72,13 +66,22 @@ public:
 		mtl.close();
     }
 
+
 	color get_color() const {
 		return diffuse;
     }
 
+	color get_emission() const {
+		return emission;
+	}
+
+	float get_roughness() const {
+		return roughness;
+	}
+
 private:
     std::string material_name;
-	float shininess;
+	float roughness;
 	color ambient;
 	color diffuse;
 	color specular;

@@ -1,4 +1,4 @@
-#include "mesh.h"
+#include "leo-raytracer.h"
 
 #include <fstream>
 #include <sstream>
@@ -202,10 +202,47 @@ RayHit Mesh::hit(const ray& render_ray) {
     return local_ray_hit;
 }
 
-color Mesh::ligma() {
-	color obama = material_pointer->get_color();
-	//color obama = color(1,0,0);
-	return obama;
+
+vec3 Mesh::get_specular_direction(const ray& render_ray, const vec3& face_normal) {
+    double dot_product = dot(render_ray.direction(), face_normal);
+	return render_ray.direction() - (face_normal * 2 * dot_product);
 }
 
+vec3 Mesh::get_diffuse_direction(const vec3& face_normal) {
+    double r1 = random_double();
+	double r2 = random_double();
+
+	double phi = 2 * pi * r2;
+
+	double x = cos(phi) * sqrt(1 - r1);
+	double y = sin(phi) * sqrt(1 - r1);
+	double z = sqrt(r1);
+
+    vec3 tangent;
+
+	if (fabs(face_normal.x()) > 0.99) {
+		tangent = vec3(0,1,0);
+    } else {
+		tangent = normalize(cross(face_normal, vec3(1,0,0)));
+	}
+
+	vec3 bitangent = cross(face_normal, tangent);
+
+    vec3 world_dir = tangent * x + bitangent * y + face_normal * z;
+	return normalize(world_dir);
+}
+
+
+// have to find better way of doing this
+color Mesh::get_color() {
+	return material_pointer->get_color();
+}
+
+color Mesh::get_emission() {
+    return material_pointer->get_emission();
+}
+
+float Mesh::get_roughness() {
+    return material_pointer->get_roughness();
+}
 

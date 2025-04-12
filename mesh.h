@@ -36,7 +36,11 @@ public:
     virtual ~Mesh() = default; // have to find out what virtual and the ~ mean
     virtual RayHit hit(const ray& render_ray) override; // have to find out what the override means
     vec3 get_normal_vector(const int& face_index, const ray& render_ray) const;
-	color ligma(); // returns diffuse color
+	color get_color(); // returns diffuse color
+    color get_emission();
+	float get_roughness();
+	vec3 get_specular_direction(const ray& render_ray_direction, const vec3& face_normal);
+	vec3 get_diffuse_direction(const vec3& face_normal);
 
 
 private:

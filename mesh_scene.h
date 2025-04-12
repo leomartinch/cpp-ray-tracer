@@ -5,11 +5,12 @@
 
 class MeshScene {
 public:
+    // add mesh to the scene
     void add(const std::shared_ptr<Mesh>& mesh) {
         meshes.push_back(mesh);
     }
 
-    // cast a ray and return the closest hit among all meshes.
+    // cast a ray and return the closest hit among all meshes in the scene
     RayHit hit(const ray& render_ray) const {
         RayHit closest_hit;
         closest_hit.hit_time = -1;  // no hit
@@ -28,10 +29,6 @@ public:
         return closest_hit;
     }
 
-
-
-
-	// trace path function
 	color trace_path(ray render_ray, const int& samples, const int& max_bounces) const {
 		color final_color = color(0,0,0);
 
@@ -55,17 +52,20 @@ public:
 				    }
 				}
 
-				if (hit.hit_time > 0.0) {
+				if (hit.hit_time > 0.01) {
 					Mesh* hit_mesh = dynamic_cast<Mesh*>(hit.hit_object);
 
-				    // more needs to be added
-					// ligma gets diffuse color
 				    point3 intersection_point = current_ray.at(hit.hit_time);
 					vec3 normal_vector = hit_mesh->get_normal_vector(hit.face_id, current_ray);
-					final_color += throughput * hit_mesh->ligma();
-				    throughput = throughput * hit_mesh->ligma();
-					
-					current_ray = ray(intersection_point, normal_vector);
+					final_color += throughput * hit_mesh->get_emission();
+				    throughput = throughput * hit_mesh->get_color();
+
+					float roughness = hit_mesh->get_roughness();	
+					vec3 specular_direction = hit_mesh->get_specular_direction(current_ray, normal_vector);
+					vec3 diffuse_direction = hit_mesh->get_diffuse_direction(normal_vector);
+
+					vec3 reflection_direction = lerp(specular_direction, diffuse_direction, roughness);
+					current_ray = ray(intersection_point, reflection_direction);
 				}
 				else {
 				    break;
