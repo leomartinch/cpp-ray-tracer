@@ -45,26 +45,28 @@ public:
 				    // add bounding box hierarchy!!!
 
 				    RayHit temp_hit = mesh->hit(current_ray);
-				    if (temp_hit.hit_time > 0 && temp_hit.hit_time < closest_time) {
+				    if (temp_hit.hit_time > 0.001 && temp_hit.hit_time < closest_time) {
 						closest_time = temp_hit.hit_time;
 						temp_hit.hit_object = mesh.get(); // pointer to the object that was hit
 						hit = temp_hit;
 				    }
 				}
 
-				if (hit.hit_time > 0.01) {
+				if (hit.hit_time > 0.001) {
 					Mesh* hit_mesh = dynamic_cast<Mesh*>(hit.hit_object);
 
 				    point3 intersection_point = current_ray.at(hit.hit_time);
 					vec3 normal_vector = hit_mesh->get_normal_vector(hit.face_id, current_ray);
-					final_color += throughput * hit_mesh->get_emission();
-				    throughput = throughput * hit_mesh->get_color();
+					color emission = hit_mesh->get_emission();
+					color diffuse = hit_mesh->get_color();
+					final_color += throughput * emission;// hit_mesh->get_emission();
+				    throughput = throughput * diffuse;//hit_mesh->get_color();
 
 					float roughness = hit_mesh->get_roughness();	
 					vec3 specular_direction = hit_mesh->get_specular_direction(current_ray, normal_vector);
 					vec3 diffuse_direction = hit_mesh->get_diffuse_direction(normal_vector);
 
-					vec3 reflection_direction = lerp(specular_direction, diffuse_direction, roughness);
+					vec3 reflection_direction = lerp(diffuse_direction, specular_direction, roughness);
 					current_ray = ray(intersection_point, reflection_direction);
 				}
 				else {

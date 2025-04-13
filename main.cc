@@ -15,14 +15,14 @@ using namespace std;
 
 // render image
 int main() {
-	const int image_width = 256;
-	const int image_height = 256;
+	const int image_width = 200;//256;
+	const int image_height = 200;//256;
 	
 	const float start_x = -2;
 	const float start_y = 2;
 
-	const int samples = 10;
-	const int max_bounces = 2;
+	const int samples = 300;
+	const int max_bounces = 3;
 
     const float pixel_size = -2 * start_x / image_width;
 
@@ -33,9 +33,14 @@ int main() {
 	// initiate scene (populate with meshes)
 	MeshScene scene;
 
-    scene.add(make_shared<Mesh>("objects/ball3.obj"));
-    scene.add(make_shared<Mesh>("objects/ball4.obj"));
-    scene.add(make_shared<Mesh>("objects/lightball.obj"));
+    scene.add(make_shared<Mesh>("objects/top-wall.obj"));
+    scene.add(make_shared<Mesh>("objects/bottom-wall.obj"));
+    //scene.add(make_shared<Mesh>("objects/spir.obj"));
+    scene.add(make_shared<Mesh>("objects/left-wall.obj"));
+    scene.add(make_shared<Mesh>("objects/right-wall.obj"));
+    scene.add(make_shared<Mesh>("objects/back-wall.obj"));
+    scene.add(make_shared<Mesh>("objects/reflector.obj"));
+    scene.add(make_shared<Mesh>("objects/donut.obj"));
 	
 	// render
 	cout << "P3\n" << image_width << ' ' << image_height << "\n255\n"; // PPM header 
@@ -47,12 +52,14 @@ int main() {
 		y_pos = start_y - (pixel_size * j) - center_pixel;
 		for (int i = 0; i < image_width; i++) { // column
 		    x_pos = start_x + (pixel_size * i) + center_pixel;
-			
-			vec3 cell_center(x_pos,y_pos,6); // cell start has to not clip through the object
-			vec3 ray_direction(0, 0, -1);
+			point3 gege(0,0,6);
+			vec3 cell_center(x_pos,y_pos,2); // cell start has to not clip through the object
+			//vec3 ray_direction(0, 0, -1);
 
+			vec3 ray_direction = cell_center - gege;
 		    ray_direction = normalize(ray_direction);
             ray render_ray(cell_center, ray_direction);
+			
 
 			color path_color = scene.trace_path(render_ray, samples, max_bounces);
 		    write_color(cout, path_color);

@@ -234,15 +234,15 @@ vec3 Mesh::get_diffuse_direction(const vec3& face_normal) {
 
 
 // have to find better way of doing this
-color Mesh::get_color() {
+color Mesh::get_color() const{
 	return material_pointer->get_color();
 }
 
-color Mesh::get_emission() {
+color Mesh::get_emission() const{
     return material_pointer->get_emission();
 }
 
-float Mesh::get_roughness() {
+float Mesh::get_roughness() const{
     return material_pointer->get_roughness();
 }
 
