@@ -35,4 +35,4 @@ This project was created because I wanted to learn C++. There are several things
 
 If you have any suggestions on how I can improve the code I'd greatly appreciate it.
 
-More information can be found on my website: [leomartin.ch](https://www.leomartin.ch/)
+More information can be found on my website: [leomartin.ch](https://leomartin.ch/)
