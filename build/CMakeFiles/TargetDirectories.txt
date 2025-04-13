@@ -1,3 +1,0 @@
-/home/leomartin/documents/school/physik-praktikum/ray-tracer-projekt/cpp-ray-tracer/build/CMakeFiles/leo-raytracer.dir
-/home/leomartin/documents/school/physik-praktikum/ray-tracer-projekt/cpp-ray-tracer/build/CMakeFiles/edit_cache.dir
-/home/leomartin/documents/school/physik-praktikum/ray-tracer-projekt/cpp-ray-tracer/build/CMakeFiles/rebuild_cache.dir
