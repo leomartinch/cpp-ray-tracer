@@ -18,6 +18,9 @@ Mesh::Mesh(const std::string& filename) {
         cerr << "Failed to load mesh from: " << filename << "\n";
     }
     calculate_vertex_normals();
+    //point3* bounding_box_points = get_bounding_box();
+	get_bounding_box();
+	
 }
 
 bool Mesh::load_obj(const string& filename) {
@@ -191,7 +194,7 @@ RayHit Mesh::hit(const ray& render_ray) {
 
         double hit_time = get_ray_mesh_intersection(render_ray, triangle);
 
-        if (hit_time > 0.0 && hit_time < best_time) {
+        if (hit_time > 0.0001 && hit_time < best_time) {
             best_time = hit_time;
             local_ray_hit.hit_time = hit_time;
             local_ray_hit.face_id = face_index;
@@ -201,6 +204,92 @@ RayHit Mesh::hit(const ray& render_ray) {
     }
     return local_ray_hit;
 }
+
+// partially chatgpt
+BoundHit Mesh::bound_hit(const ray& r) { // have to improve after
+    BoundHit local_bound_hit;
+	local_bound_hit.is_hit = false;
+	//const point3 box_max = bounding_box_points[;
+	//const point3 box_min = bounding_box_points[1];
+
+ 
+    double t_min = -std::numeric_limits<double>::infinity();
+    double t_max = std::numeric_limits<double>::infinity();
+    const double EPSILON = 1e-9; // tolerance for floating-point comparisons
+
+    // Loop through x, y, and z axes
+    for (int i = 0; i < 3; ++i) {
+        // If the ray direction is nearly 0 on this axis, the ray is nearly parallel to the planes
+        if (std::fabs(r.direction()[i]) < EPSILON) {
+            // If the ray's origin is outside the slab for this axis, no intersection occurs.
+            if (r.origin()[i] < bounding_box_min[i] || r.origin()[i] > bounding_box_max[i])
+                return local_bound_hit;
+        } else {
+            // Calculate the intersection distances to the bounding box's planes on this axis.
+            double t1 = (bounding_box_min[i] - r.origin()[i]) / r.direction()[i];
+            double t2 = (bounding_box_max[i] - r.origin()[i]) / r.direction()[i];
+
+            // Ensure t1 is the near intersection, t2 is the far intersection.
+            if (t1 > t2)
+                std::swap(t1, t2);
+
+            // Update the interval for valid intersection.
+            t_min = std::max(t_min, t1);
+            t_max = std::min(t_max, t2);
+
+            // If the intervals do not overlap, the ray misses the bounding box.
+            if (t_min > t_max)
+                return local_bound_hit;
+        }
+    }
+
+    // If t_max is greater than or equal to the maximum of 0 and t_min, an intersection exists.
+    local_bound_hit.is_hit = (t_max >= std::max(0.0, t_min));
+    //local_bound_hit.is_hit = (t_max >= std::max(0.0, t_min)); // 
+    return local_bound_hit;
+}
+
+
+//const point3* get_bounding_box() {
+void Mesh::get_bounding_box() {
+    double max_x = -std::numeric_limits<double>::infinity();;
+	double min_x = std::numeric_limits<double>::infinity();;
+	double max_y = -std::numeric_limits<double>::infinity();;
+	double min_y = std::numeric_limits<double>::infinity();;
+	double max_z = -std::numeric_limits<double>::infinity();;
+	double min_z = std::numeric_limits<double>::infinity();;
+
+	for (const auto& vertice : vertices) {
+		if (vertice.x() > max_x) {
+		    max_x = vertice.x();
+		}
+		if (vertice.x() < min_x) {
+		    min_x = vertice.x();
+		}
+		if (vertice.y() > max_y) {
+		    max_y = vertice.y();
+		}
+		if (vertice.y() < min_y) {
+		    min_y = vertice.y();
+		}
+		if (vertice.z() > max_z) {
+		    max_z = vertice.z();
+		}
+		if (vertice.z() < min_z) {
+		    min_z = vertice.z();
+		}
+    }
+
+	bounding_box_max = point3(max_x, max_y, max_z);
+	bounding_box_min = point3(min_x, min_y, min_z);
+
+    //const point3 bounding_box_points[2] = {bounding_box_max, bounding_box_min};
+	//return bounding_box_points;
+}
+
+
+
+
 
 
 vec3 Mesh::get_specular_direction(const ray& render_ray, const vec3& face_normal) {

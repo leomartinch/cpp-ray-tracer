@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <vector>
 #include <iostream>
+#include <chrono>
 using namespace std;
 
 // RAY-TRACER //
@@ -15,13 +16,13 @@ using namespace std;
 
 // render image
 int main() {
-	const int image_width = 200;//256;
-	const int image_height = 200;//256;
+	const int image_width = 480;//256;
+	const int image_height = 480;//256;
 	
 	const float start_x = -2;
 	const float start_y = 2;
 
-	const int samples = 300;
+	const int samples = 3;
 	const int max_bounces = 3;
 
     const float pixel_size = -2 * start_x / image_width;
@@ -40,8 +41,9 @@ int main() {
     scene.add(make_shared<Mesh>("objects/right-wall.obj"));
     scene.add(make_shared<Mesh>("objects/back-wall.obj"));
     scene.add(make_shared<Mesh>("objects/reflector.obj"));
-    scene.add(make_shared<Mesh>("objects/donut.obj"));
+    //scene.add(make_shared<Mesh>("objects/ga.obj"));
 	
+	auto start = chrono::high_resolution_clock::now();
 	// render
 	cout << "P3\n" << image_width << ' ' << image_height << "\n255\n"; // PPM header 
     color pixel_color;
@@ -52,7 +54,7 @@ int main() {
 		y_pos = start_y - (pixel_size * j) - center_pixel;
 		for (int i = 0; i < image_width; i++) { // column
 		    x_pos = start_x + (pixel_size * i) + center_pixel;
-			point3 gege(0,0,6);
+			point3 gege(0,0,5);
 			vec3 cell_center(x_pos,y_pos,2); // cell start has to not clip through the object
 			//vec3 ray_direction(0, 0, -1);
 
@@ -66,7 +68,12 @@ int main() {
 		}
 
     }
-	clog << "\rRender Done                            \n";
+	auto end = chrono::high_resolution_clock::now();
+
+    // Calculate the duration
+    chrono::duration<double> elapsed_time = end - start;
+    //std::cout << "Elapsed time: " << elapsed.count() << " ms\n";
+	clog << "\rRender Done in: " << elapsed_time.count() << "sec\n";
 }
 				
 

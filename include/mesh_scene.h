@@ -14,16 +14,23 @@ public:
     RayHit hit(const ray& render_ray) const {
         RayHit closest_hit;
         closest_hit.hit_time = -1;  // no hit
+		closest_hit.face_id = -1;
         double closest_time = std::numeric_limits<double>::max();
 
         for (const auto& mesh : meshes) {
+		//for (const auto& bounding_box : bounding_boxes) {
+
 		    // add bounding box hierarchy!!!
+			BoundHit bound_hit = mesh->bound_hit(render_ray);
+			if (bound_hit.is_hit) {
+				continue;
+			}
 
             RayHit temp_hit = mesh->hit(render_ray);
             if (temp_hit.hit_time > 0 && temp_hit.hit_time < closest_time) {
-                closest_time = temp_hit.hit_time;
-				temp_hit.hit_object = mesh.get(); // pointer to the object that was hit
-                closest_hit = temp_hit;
+               closest_time = temp_hit.hit_time;
+		       temp_hit.hit_object = mesh.get(); // pointer to the object that was hit
+               closest_hit = temp_hit;
             }
         }
         return closest_hit;
@@ -43,6 +50,10 @@ public:
 
 				for (const auto& mesh : meshes) {
 				    // add bounding box hierarchy!!!
+				    BoundHit bound_hit = mesh->bound_hit(current_ray);
+				    if (!bound_hit.is_hit) {
+						continue;
+				    }
 
 				    RayHit temp_hit = mesh->hit(current_ray);
 				    if (temp_hit.hit_time > 0.001 && temp_hit.hit_time < closest_time) {
