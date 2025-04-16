@@ -26,7 +26,7 @@ struct BoundHit {
 class Hittable {
 public:
     virtual RayHit hit(const ray& render_ray) = 0;
-	virtual BoundHit bound_hit(const ray& render_ray) = 0;
+	virtual bool bound_hit(const ray& render_ray) = 0;
 	virtual ~Hittable() = default;
 };
 
@@ -41,8 +41,10 @@ public:
 
     virtual ~Mesh() = default; // have to find out what virtual and the ~ mean
     virtual RayHit hit(const ray& render_ray) override; // have to find out what the override means
-    virtual BoundHit bound_hit(const ray& render_ray) override;
+    virtual bool bound_hit(const ray& render_ray) override;
     vec3 get_normal_vector(const int& face_index, const ray& render_ray) const;
+
+	// material properties
 	color get_color() const; // returns diffuse color
     color get_emission() const;
 	float get_roughness() const;

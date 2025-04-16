@@ -205,25 +205,27 @@ RayHit Mesh::hit(const ray& render_ray) {
     return local_ray_hit;
 }
 
+
 // partially chatgpt
-BoundHit Mesh::bound_hit(const ray& r) { // have to improve after
-    BoundHit local_bound_hit;
-	local_bound_hit.is_hit = false;
+/*
+bool Mesh::bound_hit(const ray& r) { // have to improve after
+    //BoundHit local_bound_hit;
+	//local_bound_hit.is_hit = false;
 	//const point3 box_max = bounding_box_points[;
 	//const point3 box_min = bounding_box_points[1];
 
  
     double t_min = -std::numeric_limits<double>::infinity();
     double t_max = std::numeric_limits<double>::infinity();
-    const double EPSILON = 1e-9; // tolerance for floating-point comparisons
+    //const double EPSILON = 1e-9; // tolerance for floating-point comparisons
 
     // Loop through x, y, and z axes
     for (int i = 0; i < 3; ++i) {
         // If the ray direction is nearly 0 on this axis, the ray is nearly parallel to the planes
-        if (std::fabs(r.direction()[i]) < EPSILON) {
+        if (std::fabs(r.direction()[i]) < 0.0001) {
             // If the ray's origin is outside the slab for this axis, no intersection occurs.
             if (r.origin()[i] < bounding_box_min[i] || r.origin()[i] > bounding_box_max[i])
-                return local_bound_hit;
+                return false;
         } else {
             // Calculate the intersection distances to the bounding box's planes on this axis.
             double t1 = (bounding_box_min[i] - r.origin()[i]) / r.direction()[i];
@@ -239,15 +241,68 @@ BoundHit Mesh::bound_hit(const ray& r) { // have to improve after
 
             // If the intervals do not overlap, the ray misses the bounding box.
             if (t_min > t_max)
-                return local_bound_hit;
+                return false;
         }
     }
-
     // If t_max is greater than or equal to the maximum of 0 and t_min, an intersection exists.
-    local_bound_hit.is_hit = (t_max >= std::max(0.0, t_min));
-    //local_bound_hit.is_hit = (t_max >= std::max(0.0, t_min)); // 
-    return local_bound_hit;
+    return (t_max >= std::max(0.0, t_min));
 }
+*/
+
+bool Mesh::bound_hit(const ray& r) { //, const point3& box_min, const point3& box_max) { // have to improve after
+    double t_min = -std::numeric_limits<double>::infinity();
+    double t_max = std::numeric_limits<double>::infinity();
+
+    // Loop through x, y, and z axes
+    for (int i = 0; i < 3; ++i) {
+        // If the ray direction is nearly 0 on this axis, the ray is nearly parallel to the planes
+        if (std::fabs(r.direction()[i]) < 0.0001) {
+            // If the ray's origin is outside the slab for this axis, no intersection occurs.
+            if (r.origin()[i] < bounding_box_min[i] || r.origin()[i] > bounding_box_max[i])
+                return false;
+        } else {
+            // Calculate the intersection distances to the bounding box's planes on this axis.
+            double t1 = (bounding_box_min[i] - r.origin()[i]) / r.direction()[i];
+            double t2 = (bounding_box_max[i] - r.origin()[i]) / r.direction()[i];
+
+            // Ensure t1 is the near intersection, t2 is the far intersection.
+            if (t1 > t2)
+                std::swap(t1, t2);
+
+            // Update the interval for valid intersection.
+            t_min = std::max(t_min, t1);
+            t_max = std::min(t_max, t2);
+
+            // If the intervals do not overlap, the ray misses the bounding box.
+            if (t_min > t_max)
+                return false;
+        }
+    }
+    // If t_max is greater than or equal to the maximum of 0 and t_min, an intersection exists.
+    return (t_max >= std::max(0.0, t_min));
+}
+
+
+// https://medium.com/@bromanz/another-view-on-the-classic-ray-aabb-intersection-algorithm-for-bvh-traversal-41125138b525
+/*
+bool Mesh::bound_hit(const ray& ray) { //, AABB aabb, float tmin, float tmax) {
+    //float3 invD = rcp(ray.direction());
+	point3 invD(1/ray.direction().x(), 1/ray.direction().y(), 1/ray.direction().z())
+	point3 t0s = point3(bounding_box_min - ray.origin()) * invD;
+  	point3 t1s = point3(bounding_box_max - ray.origin()) * invD;
+    
+  	point3 tsmaller = std::min(t0s, t1s);
+	point3 tbigger  = std::max(t0s, t1s);
+	double tmin = 0.0;
+	double tmax = 100;
+    
+   	tmin = std::max(tmin, std::max(tsmaller[0], std::max(tsmaller[1], tsmaller[2])));
+   	tmax = std::min(tmax, std::min(tbigger[0], std::min(tbigger[1], tbigger[2])));
+
+	return (tmin < tmax);
+}
+
+*/
 
 
 //const point3* get_bounding_box() {
