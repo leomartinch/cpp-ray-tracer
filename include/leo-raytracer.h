@@ -36,6 +36,6 @@ inline double random_double() {
 #include "ray.h"
 #include "vec3.h"
 #include "mesh.h"
-#include "mesh_scene.h"
+#include "scene.h"
 
 #endif
