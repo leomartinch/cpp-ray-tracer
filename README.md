@@ -13,8 +13,11 @@ This is a port of [python-ray-tracer](https://github.com/leomartinch/python-ray-
 
 ### Linux
 ```sh
-git clone https://thing
-cd to-thing/
+git clone https://github.com/leomartinch/cpp-ray-tracer.git
+cd cpp-ray-tracer/
+mkdir build/
+cd build/
+cmake ..
 ```
 
 ### Windows
@@ -23,6 +26,21 @@ not tested
 
 
 ## Usage
+
+To setup a scene go to the src/main.cc and set the scene (see customisation). 
+Also set the render resolution and other settings.
+Then compile the script:
+```sh
+cd build/
+make
+```
+
+To run the ray tracer you have to be in the home directory.
+Then run the program into a PPM file of your choosing.
+```sh
+./build/leo-raytracer > filename.ppm
+```
+
 
 
 
