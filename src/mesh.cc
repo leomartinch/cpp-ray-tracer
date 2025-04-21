@@ -7,7 +7,6 @@
 #include <limits>
 #include <cmath>
 #include <filesystem>
-using namespace std;
 
 // OBJ MESH LOADER //
 // Leo Martin (2025) //
@@ -15,32 +14,32 @@ using namespace std;
 
 Mesh::Mesh(const std::string& filename) {
     if (!load_obj(filename)) {
-        cerr << "Failed to load mesh from: " << filename << "\n";
+			std::cerr << "Failed to load mesh from: " << filename << "\n";
     }
     calculate_vertex_normals();
 	get_bounding_box();
 	
 }
 
-bool Mesh::load_obj(const string& filename) {
+bool Mesh::load_obj(const std::string& filename) {
 	std::filesystem::path obj_path(filename);
 	std::filesystem::path directory = obj_path.parent_path();
 
-    ifstream obj(filename);
+	std::ifstream obj(filename);
     if (!obj.is_open()) {
         return false;
     }
 
-    string material_name;
-    string mtl_file;
+	std::string material_name;
+	std::string mtl_file;
 
-    string line;
+	std::string line;
     while (getline(obj, line)) {
         if (line.empty() || line[0] == '#')
             continue;
 
-        istringstream stream(line);
-        string prefix;
+		std::istringstream stream(line);
+		std::string prefix;
         stream >> prefix;
 
         if (prefix == "o") { // object name
@@ -53,8 +52,7 @@ bool Mesh::load_obj(const string& filename) {
             stream >> mtl_file;	
         }
         else if (prefix == "usemtl") { // material name
-
-            stream >> material_name;
+			stream >> material_name;
         }
 		else if (prefix == "v") { // vertex
             float x, y, z;
@@ -63,12 +61,12 @@ bool Mesh::load_obj(const string& filename) {
         }
         else if (prefix == "f") { // face
             Face current_face;
-            string token;
+			std::string token;
             int i = 0;
             while (stream >> token && i < 3) { // have to make a system that works with quads and triangulates the face
                 // break down face and only take the index (index/vertex_texture/vertex_normal)
-                replace(token.begin(), token.end(), '/', ' ');
-                istringstream point_stream(token);
+				std::replace(token.begin(), token.end(), '/', ' ');
+				std::istringstream point_stream(token);
                 int vertex_index;
                 point_stream >> vertex_index;
                 current_face.face_vertices[i] = vertex_index - 1; // .obj indices start at 1
@@ -81,12 +79,11 @@ bool Mesh::load_obj(const string& filename) {
 
     // create material object and make pointer that links to it	
     std::filesystem::path mtl_file_path = directory / mtl_file;
-    material_pointer = make_shared<Material>(mtl_file_path.string(), material_name);
+    material_pointer = std::make_shared<Material>(mtl_file_path.string(), material_name);
     return true;
 }
 
 void Mesh::calculate_vertex_normals() { // average from adjacent faces
-    // initialize vertex normals to zero
     vertex_normals.assign(vertices.size(), vec3(0.0f, 0.0f, 0.0f));
 
     for (const Face &face : faces) {

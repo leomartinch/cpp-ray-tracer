@@ -6,8 +6,6 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
-//#include "vec3.h"
-//using color = vec3;
 
 
 class Material {
