@@ -20,9 +20,16 @@ cd build/
 cmake ..
 ```
 
-### Windows
+### Windows (PowerShell)
 
-not tested
+```sh
+git clone https://github.com/leomartinch/cpp-ray-tracer.git
+cd your-project
+mkdir build
+cd build
+cmake ..
+cmake --build . --config Release
+```
 
 
 ## Usage
